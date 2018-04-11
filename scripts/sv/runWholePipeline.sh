@@ -33,16 +33,26 @@ PROJECT_OUTPUT_DIR="${MASTER_NODE}$4"
 INPUT_BAM="${MASTER_NODE}$5"
 REF_TWOBIT="${MASTER_NODE}$6"
 REF_INDEX_IMAGE="$7"
+GENERATE_FASTQS="$8"
 INTERVAL_KILL_LIST=$(echo "${REF_TWOBIT}" | sed 's/.2bit$/.kill.intervals/')
 KMER_KILL_LIST=$(echo "${REF_TWOBIT}" | sed 's/.2bit$/.kill.kmers/')
 ALTS_KILL_LIST=$(echo "${REF_TWOBIT}" | sed 's/.2bit$/.kill.alts/')
 
 # extract any extra arguments to StructuralVariationDiscoveryPipelineSpark
-shift $(($# < 7 ? $# : 7))
+shift $(($# < 8 ? $# : 8))
 SV_ARGS=${*:-${SV_ARGS:-""}}
 # expand any local variables passed as strings (e.g. PROJECT_OUTPUT_DIR)
 eval "SV_ARGS=\"${SV_ARGS}\""
 
+echo "${GENERATE_FASTQS}"
+case "${GENERATE_FASTQS}" in
+        [nN]*)
+            FASTQ_DIR_ARGS=""
+            ;;
+        *)
+            FASTQ_DIR_ARGS="--fastq-dir ${PROJECT_OUTPUT_DIR}/fastq"
+            ;;
+esac
 # Choose NUM_EXECUTORS = 2 * NUM_WORKERS
 # NOTE: this would find preemptible workers, but it produces
 # (erroneous?) deprecation warnings
@@ -69,7 +79,7 @@ case ${GATK_SV_TOOL} in
             --cross-contigs-to-ignore ${ALTS_KILL_LIST} \
             --breakpoint-intervals ${PROJECT_OUTPUT_DIR}/intervals \
             --high-coverage-intervals "${PROJECT_OUTPUT_DIR}/highCoverageIntervals.bed" \
-            --fastq-dir ${PROJECT_OUTPUT_DIR}/fastq \
+            ${FASTQ_DIR_ARGS} \
             --contig-sam-file ${PROJECT_OUTPUT_DIR}/assemblies.bam \
             --target-link-file ${PROJECT_OUTPUT_DIR}/target_links.bedpe \
             --exp-interpret"
@@ -85,7 +95,7 @@ case ${GATK_SV_TOOL} in
             --cross-contigs-to-ignore ${ALTS_KILL_LIST} \
             --breakpoint-intervals ${PROJECT_OUTPUT_DIR}/intervals \
             --high-coverage-intervals "${PROJECT_OUTPUT_DIR}/highCoverageIntervals.bed" \
-            --fastq-dir ${PROJECT_OUTPUT_DIR}/fastq \
+            ${FASTQ_DIR_ARGS} \
             --target-link-file ${PROJECT_OUTPUT_DIR}/target_links.bedpe"
         ;;
     *)

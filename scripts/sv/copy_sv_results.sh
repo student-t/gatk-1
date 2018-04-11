@@ -33,9 +33,9 @@ OUTPUT_DIR=$3
 GCS_USER=${4:-${USER}}
 GCS_SAVE_PATH=${5:-"${PROJECT_NAME}/${GCS_USER}"}
 LOCAL_LOG_FILE=${6:-"/dev/null"}
-COPY_FASTQ=${COPY_FASTQ:-"Y"}
+COPY_FASTQ=${7:-"Y"}
 
-shift $(($# < 6 ? $# : 6))
+shift $(($# < 7 ? $# : 7))
 SV_ARGS=${*:-${SV_ARGS:-""}}
 
 # get appropriate ZONE for cluster
