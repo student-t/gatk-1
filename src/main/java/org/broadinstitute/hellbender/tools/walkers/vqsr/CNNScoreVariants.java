@@ -140,6 +140,9 @@ public class CNNScoreVariants extends VariantWalker {
     @Argument(fullName = "filter-symbolic-and-sv", shortName = "filter-symbolic-and-sv", doc = "If set will filter symbolic and and structural variants from the input VCF", optional = true)
     private boolean filterSymbolicAndSV = false;
 
+    @Argument(fullName = "keep-artificial-read-group", shortName = "keep-artificial-read-group", doc = "If set will keep the artificial read group in read tensors.", optional = true)
+    private boolean keepArtificialReadGroup = false;
+
     @Advanced
     @Argument(fullName = "inference-batch-size", shortName = "inference-batch-size", doc = "Size of batches for python to do inference on.", minValue = 1, maxValue = 4096, optional = true)
     private int inferenceBatchSize = 256;
@@ -323,7 +326,7 @@ public class CNNScoreVariants extends VariantWalker {
         }
         while (readIt.hasNext()) {
             GATKRead r  = readIt.next();
-            if (r.getReadGroup().toLowerCase().contains("artificial")){
+            if (!keepArtificialReadGroup && r.getReadGroup().toLowerCase().contains("artificial")){
                 continue;
             }
             sb.append(GATKReadToString(r));
