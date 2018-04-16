@@ -70,7 +70,6 @@ def score_and_write_batch(args, model, file_out, fifo, batch_size, python_batch_
             insert_dict = get_inserts(args, read_tuples, var)
             tensor = read_tuples_to_read_tensor(args, read_tuples, ref_start, insert_dict)
             reference_sequence_into_tensor(args, fifo_data[4], tensor, insert_dict)
-
             if os.path.exists(tensor_dir):
                 _write_tensor_to_hd5(args, tensor, annotation_batch[-1], fifo_data[0], fifo_data[1], fifo_data[6])
             read_batch.append(tensor)

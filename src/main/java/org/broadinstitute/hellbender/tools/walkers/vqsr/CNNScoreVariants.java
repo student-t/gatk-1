@@ -10,9 +10,9 @@ import org.broadinstitute.barclay.argparser.*;
 import org.broadinstitute.barclay.help.DocumentedFeature;
 import org.broadinstitute.hellbender.cmdline.StandardArgumentDefinitions;
 import org.broadinstitute.hellbender.engine.*;
-import org.broadinstitute.hellbender.engine.filters.VariantFilter;
-import org.broadinstitute.hellbender.engine.filters.VariantFilterLibrary;
+import org.broadinstitute.hellbender.engine.filters.*;
 import org.broadinstitute.hellbender.exceptions.GATKException;
+import org.broadinstitute.hellbender.utils.haplotype.HaplotypeBAMWriter;
 import org.broadinstitute.hellbender.utils.io.Resource;
 import org.broadinstitute.hellbender.utils.io.IOUtils;
 import org.broadinstitute.hellbender.utils.python.StreamingPythonScriptExecutor;
@@ -140,9 +140,6 @@ public class CNNScoreVariants extends VariantWalker {
     @Argument(fullName = "filter-symbolic-and-sv", shortName = "filter-symbolic-and-sv", doc = "If set will filter symbolic and and structural variants from the input VCF", optional = true)
     private boolean filterSymbolicAndSV = false;
 
-    @Argument(fullName = "keep-artificial-read-group", shortName = "keep-artificial-read-group", doc = "If set will keep the artificial read group in read tensors.", optional = true)
-    private boolean keepArtificialReadGroup = false;
-
     @Advanced
     @Argument(fullName = "inference-batch-size", shortName = "inference-batch-size", doc = "Size of batches for python to do inference on.", minValue = 1, maxValue = 4096, optional = true)
     private int inferenceBatchSize = 256;
@@ -209,6 +206,16 @@ public class CNNScoreVariants extends VariantWalker {
         } else {
             return VariantFilterLibrary.ALLOW_ALL_VARIANTS;
         }
+    }
+
+    @Override
+    public List<ReadFilter> getDefaultReadFilters() {
+        List<ReadFilter> readFilters = new ArrayList<>();
+        List<String> filterList = new ArrayList<>();
+        filterList.add("ID:" + HaplotypeBAMWriter.DEFAULT_HAPLOTYPE_READ_GROUP_ID);
+        filterList.add("ID:ArtificialHaplotype"); // GATK3 Compatibility
+        readFilters.add(new ReadGroupBlackListReadFilter(filterList, null));
+        return readFilters;
     }
 
     @Override
@@ -325,11 +332,7 @@ public class CNNScoreVariants extends VariantWalker {
             logger.warn("No reads at contig:" + variant.getContig() + " site:" + String.valueOf(variant.getStart()));
         }
         while (readIt.hasNext()) {
-            GATKRead r  = readIt.next();
-            if (!keepArtificialReadGroup && r.getReadGroup().toLowerCase().contains("artificial")){
-                continue;
-            }
-            sb.append(GATKReadToString(r));
+            sb.append(GATKReadToString(readIt.next()));
         }
         sb.append("\n");
         batchList.add(sb.toString());

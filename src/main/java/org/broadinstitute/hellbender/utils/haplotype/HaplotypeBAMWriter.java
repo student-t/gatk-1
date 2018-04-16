@@ -25,7 +25,7 @@ public abstract class HaplotypeBAMWriter implements AutoCloseable {
      */
     private long uniqueNameCounter = 1;
 
-    private static final String DEFAULT_HAPLOTYPE_READ_GROUP_ID = "ArtificialHaplotypeRG";
+    public static final String DEFAULT_HAPLOTYPE_READ_GROUP_ID = "ArtificialHaplotypeRG";
     private static final int bestHaplotypeMQ = 60;
     private static final int otherMQ = 0;
 
