@@ -30,7 +30,7 @@ public final class ReadGroupBlackListReadFilter extends ReadFilter implements Se
     public static final String COMMENT_START = "#";
     public static final String FILTER_ENTRY_SEPARATOR = ":";
 
-    @Argument(fullName= ReadFilterArgumentDefinitions.READ_GROUP_BLACK_LIST_LONG_NAME, doc="The name of the read group to filter out", optional=true)
+    @Argument(fullName= ReadFilterArgumentDefinitions.READ_GROUP_BLACK_LIST_LONG_NAME, doc="The name of the read group to filter out", optional=false)
     public List<String> blackList = new ArrayList<>();
 
     //most of the collection Entry classes are not serializable so just use a Map
@@ -47,6 +47,7 @@ public final class ReadGroupBlackListReadFilter extends ReadFilter implements Se
          */
     public ReadGroupBlackListReadFilter(final List<String> blackLists, final SAMFileHeader header) {
         super.setHeader(header);
+        this.blackList = blackLists;
         final Map<String, Collection<String>> filters = new TreeMap<>();
         for (String blackList : blackLists) {
             try {
