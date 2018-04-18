@@ -190,7 +190,6 @@ public class CNNScoreVariants extends VariantWalker {
                 return new String[]{"No default architecture for tensor type:" + tensorType.name()};
             }
         }
-
         return null;
     }
 
