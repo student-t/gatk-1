@@ -210,9 +210,10 @@ public class CNNScoreVariants extends VariantWalker {
     @Override
     public List<ReadFilter> getDefaultReadFilters() {
         List<ReadFilter> readFilters = new ArrayList<>();
+        readFilters.addAll(super.getDefaultReadFilters());
         List<String> filterList = new ArrayList<>();
         filterList.add("ID:" + HaplotypeBAMWriter.DEFAULT_HAPLOTYPE_READ_GROUP_ID);
-        filterList.add("ID:ArtificialHaplotype"); // GATK3 Compatibility
+        filterList.add("ID:" + HaplotypeBAMWriter.DEFAULT_GATK3_HAPLOTYPE_READ_GROUP_ID);
         readFilters.add(new ReadGroupBlackListReadFilter(filterList, null));
         return readFilters;
     }
