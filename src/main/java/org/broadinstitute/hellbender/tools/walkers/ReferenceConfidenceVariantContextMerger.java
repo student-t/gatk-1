@@ -33,6 +33,7 @@ public final class ReferenceConfidenceVariantContextMerger {
     private final VCFHeader vcfInputHeader;
     protected final VariantAnnotatorEngine annotatorEngine;
     protected final OneShotLogger warning = new OneShotLogger(this.getClass());
+    protected final OneShotLogger oneShotHeaderLineLogger = new OneShotLogger(this.getClass());
 
     public ReferenceConfidenceVariantContextMerger(VariantAnnotatorEngine engine, final VCFHeader inputHeader) {
         Utils.nonNull(inputHeader, "A VCF header must be provided");
@@ -388,7 +389,6 @@ public final class ReferenceConfidenceVariantContextMerger {
                     annotationMap.put(key, values);
                 }
                 try {
-                    //TODO: Verify that the code paths that lead here guarantee that these are always INFO attributes ?
                     values.add(parseNumericInfoAttributeValue(vcfInputHeader, key, value.toString()));
                 } catch (final NumberFormatException e) {
                     warning.warn(String.format("Detected invalid annotations: When trying to merge variant contexts at location %s:%d the annotation %s was not a numerical value and was ignored",vcPair.getVc().getContig(),vcPair.getVc().getStart(),p.toString()));
@@ -405,7 +405,7 @@ public final class ReferenceConfidenceVariantContextMerger {
     private Comparable<?> parseNumericInfoAttributeValue(final VCFHeader vcfHeader, final String key, final String stringValue) {
         final VCFInfoHeaderLine infoLine = vcfHeader.getInfoHeaderLine(key);
         if (infoLine == null) {
-            warning.warn(String.format("No header line for INFO attribute %s was found in the input header", key));
+            oneShotHeaderLineLogger.warn(String.format("At least one attribute was found (%s) for which there no corresponding header line", key));
             if (stringValue.contains(".")) {
                 return Double.parseDouble(stringValue);
             } else {
