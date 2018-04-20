@@ -47,7 +47,7 @@ public final class ReadGroupBlackListReadFilter extends ReadFilter implements Se
      */
     public ReadGroupBlackListReadFilter(final List<String> blackLists, final SAMFileHeader header) {
         super.setHeader(header);
-        this.blackList = blackLists;
+        this.blackList.addAll(blackLists);
         final Map<String, Collection<String>> filters = new TreeMap<>();
         for (String blackList : blackLists) {
             try {
